@@ -3,11 +3,13 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hotel {
 
     List<Quarto> quartos;
     private BlockingQueue<Hospede> filaEspera;
+    private AtomicInteger hospedesAtivos = new AtomicInteger(0);
     List<Camareira> camareiras;
     List<Recepcionista> recepcionistas;
 
@@ -45,6 +47,7 @@ public class Hotel {
                     quarto.adicionarHospede(hospede, membrosAlocados);
                     membrosRestantes -= membrosAlocados;
                     if(membrosRestantes <= 0) {
+                        hospedesAtivos.incrementAndGet(); // Incrementar o contador de hóspedes ativos
                         return true;
                     }
                 }
@@ -65,8 +68,10 @@ public class Hotel {
                 break;
             }
         }
-        // Notificar camareiras para limpeza do quarto
-        notifyAll();
+        if(hospedesAtivos.decrementAndGet() == 0) {
+            System.out.println("Não há mais hospedes no hotel, portanto o sistema será encerrado");
+            System.exit(0); // Método encerra a aplicação se não houver hóspedes ativos!
+        }
     }
 
     public synchronized boolean adicionarFilaEspera(Hospede hospede) {
@@ -76,4 +81,16 @@ public class Hotel {
     public synchronized Hospede proximoFilaEspera() {
         return filaEspera.poll();
     }
+
+    // Método para encontrar o quarto de um hospede específico
+//    public Quarto encontrarQuartoPorHospede(String nomeHospede) {
+//        for (Quarto quarto : quartos) {
+//            for (Hospede hospede : quarto.getHospedes()) {
+//                if (hospede.getNome().equals(nomeHospede)) {
+//                    return quarto;
+//                }
+//            }
+//        }
+//        return null; // Não encontrado
+//    }
 }
