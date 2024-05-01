@@ -1,9 +1,6 @@
-
-
 import java.util.Random;
 
 public class Hospede extends Thread{
-
     private Hotel hotel;
     private String nome;
     private int membrosFamilia;

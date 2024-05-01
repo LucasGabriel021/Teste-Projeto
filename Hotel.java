@@ -1,4 +1,3 @@
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.ArrayList;
@@ -6,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hotel {
-
     List<Quarto> quartos;
     private BlockingQueue<Hospede> filaEspera;
     private AtomicInteger hospedesAtivos = new AtomicInteger(0);
@@ -40,7 +38,10 @@ public class Hotel {
         while(membrosRestantes > 0) {
             for (Quarto quarto : quartos) {
                 if (quarto.isVago()) {
+//                    Se o quarto estiver vago, aloca um número máximo de 4 membros
+//                    (ou menos, se houver menos membros restantes) para esse quarto.
                     int membrosAlocados = Math.min(membrosRestantes, 4);
+                    System.out.println("Membros alocados: " + membrosAlocados);
                     quarto.adicionarHospede(hospede, membrosAlocados);
 
                     // System.out.println(quarto.getNumero());
@@ -53,7 +54,7 @@ public class Hotel {
                 }
             }
             if (membrosRestantes > 0) {
-                return false; // Não há quartos suficientes disponíveis
+                return false; // Há membros restantes, mas não há quartos suficientes disponíveis
             }
         }
         return true;

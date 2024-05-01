@@ -1,10 +1,7 @@
-
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Quarto {
-
     private int numero;
     private boolean vago;
     private List<Hospede> hospedes;

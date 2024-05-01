@@ -1,7 +1,4 @@
-
-
 public class Camareira extends Thread{
-
     public Hotel hotel;
 
     public Camareira(Hotel hotel) {

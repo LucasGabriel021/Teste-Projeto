@@ -1,8 +1,6 @@
-
 import java.util.Random;
 
 public class Recepcionista extends Thread {
-
     private Hotel hotel;
 
     public Recepcionista(Hotel hotel) {
