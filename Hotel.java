@@ -20,17 +20,17 @@ public class Hotel {
         random = new Random();
 
         // Inicializar os quartos
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             quartos.add(new Quarto(i + 1));
         }
 
         // Inicializar as camareiras
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             camareiras.add(new Camareira(this));
         }
 
         // Inicializar os recepcionistas
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             recepcionistas.add(new Recepcionista(this));
         }
     }

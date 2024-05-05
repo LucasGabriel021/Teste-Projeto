@@ -19,10 +19,10 @@ public class Recepcionista extends Thread {
                 Hospede hospede = filaDeEspera.take();
                 if (!checkIn(hospede)) { // Utiliza o checkIn modificado
                     if (hospede.incrementarTentativas() >= 2) {
-                        System.out.println("Hospede " + hospede.getNome() + " deixou uma reclamação e foi embora.");
+                        System.out.println(hospede.getNome() + " deixou uma reclamação e foi embora após duas tentaivas de check-in.");
                         continue;
                     }
-                    System.out.println("Hospede " + hospede.getNome() + " vai passear pela cidade e tentar novamente mais tarde.");
+                    System.out.println(hospede.getNome() + " vai passear pela cidade e tentar novamente mais tarde realizar o check-in.");
                     Thread.sleep(RETRY_DELAY_MS); // Hospede passeia pela cidade
                     filaDeEspera.put(hospede);
                 }
@@ -51,15 +51,34 @@ public class Recepcionista extends Thread {
     }
 
     public boolean checkIn(Hospede hospede) {
+//        synchronized (hotel) {
+//            if (alocarGrupo(hospede)) {
+//                System.out.println("Check-in realizado com sucesso para " + hospede.getNome() + " e seu gurpo de " + hospede.getMembrosFamilia());
+//                return true;
+//            } else {
+//                System.out.println("Check-in falhou: Não há quartos disponíveis para " + hospede.getNome() + " e seu gurpo de " + hospede.getMembrosFamilia());
+//                return false;
+//            }
+//        }
         synchronized (hotel) {
-            if (alocarGrupo(hospede)) {
-                System.out.println("Check-in realizado com sucesso para " + hospede.getNome() + " e seus familiares.");
-                return true;
-            } else {
-                System.out.println("Check-in falhou: Não há quartos disponíveis para " + hospede.getNome());
-                return false;
+            int membrosRestantes = hospede.getMembrosFamilia();
+            while(membrosRestantes > 0) {
+                Quarto quarto = hotel.getVagoQuarto();
+                if(quarto == null) {
+                    System.out.println("Check-in falhou: Não há quartos disponíveis para " + hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia() + " pessoas.");
+                    return false;
+                }
+                int membrosNoQuarto = Math.min(membrosRestantes, Quarto.CAPACIDADE_MAXIMA);
+                quarto.adicionarHospede(hospede, membrosNoQuarto);
+                membrosRestantes -= membrosNoQuarto;
             }
+            System.out.println("Check-in realizado com sucesso para " + hospede.getNome() + ". Grupo alocado em quartos conforme disponibilidade.");
+            if (membrosRestantes > 0) {
+                System.out.println("Atenção: Não foi possível alocar todos os membros em um único quarto. O restante foi alocado em outro quarto.");
+            }
+            return true;
         }
+
     }
 
     public void checkOut(Hospede hospede) {
@@ -78,7 +97,7 @@ public class Recepcionista extends Thread {
                         hospede.concluirEstadia(); // Permitir que o hospede conclua sua estadia
                         hospede.notifyAll();
                     }
-                    System.out.println("Hospede " + hospede.getNome() + " fez checkout.");
+                    System.out.println(hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia() + " pessoas fizeram o check-out no hotel.");
                     break;
                 }
             }
@@ -88,6 +107,6 @@ public class Recepcionista extends Thread {
 
     public void adicionarFilaDeEspera(Hospede hospede) {
         filaDeEspera.offer(hospede);
-        System.out.println("O hóspede " + hospede.getNome() + " está aguardando na fila de espera " + "junto ao seus familiares " + hospede.getMembrosFamilia());
+        System.out.println(hospede.getNome() + " está aguardando na fila de espera " + "junto ao seu grupo de " + hospede.getMembrosFamilia()  + " pessoas.");
     }
 }

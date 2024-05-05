@@ -31,21 +31,24 @@ public class Quarto {
             hospedes.add(hospede);
             ocupacaoAtual += numeroDeMembros;
             setVago(false);
-            System.out.println("Hospede " + hospede.getNome() + " e " + hospede.getMembrosFamilia() + " adicionados ao quarto de número: " + getNumero());
+            System.out.println(hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia() + " pessoas " + " foram adicionados ao quarto de número: " + getNumero());
             return true;
         }
-        System.out.println("Falha ao adicionar hospede " + hospede.getNome() + " ao quarto de número " + getNumero() + " O quarto esta cheio ou não está vago!");
+        System.out.println("Falha ao adicionar " + hospede.getNome() + " ao quarto de número " + getNumero() + " O quarto esta cheio ou não está vago!");
+        if(numeroDeMembros > CAPACIDADE_MAXIMA) {
+            System.out.println("Devido ao tamanho do grupo, serão alocados em mais de um quarto.");
+        }
         return false;
     }
 
     public synchronized boolean removerHospede(Hospede hospede) {
         if (hospedes.remove(hospede)) {
             ocupacaoAtual -= 1; // Ajuste conforme a realidade de sua aplicação
-            System.out.println("Hospede " + hospede.getNome() + " e seus familiares " + hospede.getMembrosFamilia() + " removido do quarto " + numero);
+            System.out.println(hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia()  + " pessoas foram removido(s) do quarto " + numero);
             if (ocupacaoAtual == 0) {
                 chaveNaRecepcao = true;
                 setVago(true);  // O quarto está agora vago
-                System.out.println("Quarto " + numero + " agora está vago.");
+                System.out.println("O quarto " + numero + " agora está vago.");
             }
             return true;
         }

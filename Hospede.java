@@ -46,7 +46,7 @@ public class Hospede extends Thread{
             recepcionista.checkOut(this);
 
             // Após ser notificado que o check-out foi realizado
-            System.out.println(getNome() + " completou o check-out e está deixando o hotel.");
+            System.out.println(getNome() + " e seu grupo de " + getMembrosFamilia()  + " pessoas, completou o check-out e está deixando o hotel.");
 
         } catch (InterruptedException e) {
             System.out.println("Hospede interrompido: " + getNome() + " não completou sua estadia devido a uma interrupção.");
@@ -62,7 +62,7 @@ public class Hospede extends Thread{
     }
 
     public int incrementarTentativas() {
-        return ++tentativas;
+        return tentativas++;
     }
 
     public int getMembrosFamilia() {
