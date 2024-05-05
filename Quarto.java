@@ -3,41 +3,52 @@ import java.util.List;
 
 public class Quarto {
     private int numero;
-    private boolean vago;
     private List<Hospede> hospedes;
     private boolean chaveNaRecepcao;
+    private boolean vago; // Indica se o quarto esta vago
     private int ocupacaoAtual;
+    private static final int CAPACIDADE_MAXIMA = 4;
 
     public Quarto(int numero) {
         this.numero = numero;
-        this.vago = true;
         this.hospedes = new ArrayList<>();
         this.chaveNaRecepcao = true;
         this.ocupacaoAtual = 0;
+        this.vago = true;  // Inicialmente, todos os quartos estão vazios
     }
 
     public synchronized boolean isVago() {
-        return vago;
+        return ocupacaoAtual == 0;
     }
 
     public synchronized List<Hospede> getHospedes() {
-        return hospedes;
+        return new ArrayList<>(hospedes);  // Retorna uma cópia para prevenir nodificações externas
     }
 
-    public synchronized void adicionarHospede(Hospede hospede, int numeroDeMembros) {
-        if(ocupacaoAtual + numeroDeMembros <= 4) {
+    public synchronized boolean adicionarHospede(Hospede hospede, int numeroDeMembros) {
+        if (ocupacaoAtual + numeroDeMembros <= CAPACIDADE_MAXIMA) {
             hospedes.add(hospede);
             ocupacaoAtual += numeroDeMembros;
-            vago = false;
+            setVago(false);
+            System.out.println("Hospede " + hospede.getNome() + " e " + hospede.getMembrosFamilia() + " adicionados ao quarto de número: " + getNumero());
+            return true;
         }
+        System.out.println("Falha ao adicionar hospede " + hospede.getNome() + " ao quarto de número " + getNumero() + " O quarto esta cheio ou não está vago!");
+        return false;
     }
 
-    public synchronized void removerHospede(Hospede hospede) {
-        hospedes.remove(hospede);
-        if (hospedes.isEmpty()) {
-            vago = true;
-            chaveNaRecepcao = true;
+    public synchronized boolean removerHospede(Hospede hospede) {
+        if (hospedes.remove(hospede)) {
+            ocupacaoAtual -= 1; // Ajuste conforme a realidade de sua aplicação
+            System.out.println("Hospede " + hospede.getNome() + " e seus familiares " + hospede.getMembrosFamilia() + " removido do quarto " + numero);
+            if (ocupacaoAtual == 0) {
+                chaveNaRecepcao = true;
+                setVago(true);  // O quarto está agora vago
+                System.out.println("Quarto " + numero + " agora está vago.");
+            }
+            return true;
         }
+        return false;
     }
 
     public synchronized boolean isChaveNaRecepcao() {
@@ -48,14 +59,11 @@ public class Quarto {
         this.chaveNaRecepcao = chaveNaRecepcao;
     }
 
-    public synchronized boolean isHospedesNoQuarto() {
-        return !hospedes.isEmpty();
-    }
-
     public int getNumero() {
-        // TODO Auto-generated method stub
-        return this.numero;
+        return numero;
     }
 
-
+    public synchronized void setVago(boolean vago) {
+        this.vago = vago;
+    }
 }

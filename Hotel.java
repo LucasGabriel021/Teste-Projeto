@@ -1,3 +1,4 @@
+import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.ArrayList;
@@ -10,15 +11,16 @@ public class Hotel {
     private AtomicInteger hospedesAtivos = new AtomicInteger(0);
     List<Camareira> camareiras;
     List<Recepcionista> recepcionistas;
+    private Random random;
 
     public Hotel() {
         quartos = new ArrayList<>();
-        filaEspera = new LinkedBlockingQueue<>();
         camareiras = new ArrayList<>();
         recepcionistas = new ArrayList<>();
+        random = new Random();
 
         // Inicializar os quartos
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             quartos.add(new Quarto(i + 1));
         }
 
@@ -33,65 +35,23 @@ public class Hotel {
         }
     }
 
-    public synchronized boolean checkIn(Hospede hospede) {
-        int membrosRestantes = hospede.getMembrosFamilia();
-        while(membrosRestantes > 0) {
-            for (Quarto quarto : quartos) {
-                if (quarto.isVago()) {
-//                    Se o quarto estiver vago, aloca um número máximo de 4 membros
-//                    (ou menos, se houver menos membros restantes) para esse quarto.
-                    int membrosAlocados = Math.min(membrosRestantes, 4);
-                    System.out.println("Membros alocados: " + membrosAlocados);
-                    quarto.adicionarHospede(hospede, membrosAlocados);
+    public List<Quarto> getQuartos() {
+        return quartos;
+    }
 
-                    // System.out.println(quarto.getNumero());
-                    quarto.adicionarHospede(hospede, membrosAlocados);
-                    membrosRestantes -= membrosAlocados;
-                    if(membrosRestantes <= 0) {
-                        hospedesAtivos.incrementAndGet(); // Incrementar o contador de hóspedes ativos
-                        return true;
-                    }
-                }
-            }
-            if (membrosRestantes > 0) {
-                return false; // Há membros restantes, mas não há quartos suficientes disponíveis
+    public synchronized Quarto getVagoQuarto() {
+        for(Quarto quarto : quartos) {
+            if(quarto.isVago()) {
+                quarto.setVago(false); // Marcar como ocupado imediatamente
+                return quarto;
             }
         }
-        return true;
+        return null;
     }
 
-    public synchronized void checkOut(Hospede hospede) {
-        for (Quarto quarto : quartos) {
-            if (quarto.getHospedes().contains(hospede)) {
-                quarto.removerHospede(hospede);
-                quarto.setChaveNaRecepcao(true); // Marcar a chave como na recepção para limpeza
-                notifyAll(); // Notificar camareiras para limpeza do quarto
-                break;
-            }
-        }
-        if(hospedesAtivos.decrementAndGet() == 0) {
-            System.out.println("Não há mais hospedes no hotel, portanto o sistema será encerrado");
-            System.exit(0); // Método encerra a aplicação se não houver hóspedes ativos!
-        }
+    // Retorna um recepcionista aleatória
+    public Recepcionista getRecepciistaAleatoria() {
+        int recepcionistaAtual = random.nextInt(recepcionistas.size());
+        return recepcionistas.get(recepcionistaAtual);
     }
-
-    public synchronized boolean adicionarFilaEspera(Hospede hospede) {
-        return filaEspera.offer(hospede);
-    }
-
-    public synchronized Hospede proximoFilaEspera() {
-        return filaEspera.poll();
-    }
-
-    // Método para encontrar o quarto de um hospede específico
-//    public Quarto encontrarQuartoPorHospede(String nomeHospede) {
-//        for (Quarto quarto : quartos) {
-//            for (Hospede hospede : quarto.getHospedes()) {
-//                if (hospede.getNome().equals(nomeHospede)) {
-//                    return quarto;
-//                }
-//            }
-//        }
-//        return null; // Não encontrado
-//    }
 }

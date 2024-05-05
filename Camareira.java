@@ -10,25 +10,9 @@ public class Camareira extends Thread{
         while (true) {
             Quarto quartoParaLimpar = null;
             synchronized (hotel) {
-//                boolean found = false;
-//                for (Quarto quarto : hotel.quartos) {
-//                    if (quarto.isChaveNaRecepcao() && quarto.isVago() || !quarto.isHospedesNoQuarto()) {
-//                        limparQuarto(quarto);
-//                        found = true;
-//                        break;
-//                    }
-//                }
-//                if(!found) {
-//                    try {
-//                        hotel.wait();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-
                 while((quartoParaLimpar = encontrarQuartoParaLimpar()) == null) {
                     try {
-                        hotel.wait(); // Espera até ser notificado de que um quarto precisa de limpeza
+                        hotel.wait();  // Espera até ser notificado de que um quarto precisa de limpeza
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -36,9 +20,14 @@ public class Camareira extends Thread{
             }
             if(quartoParaLimpar != null) {
                 limparQuarto(quartoParaLimpar);
+                synchronized (hotel) {
+                    hotel.notifyAll();  // Notifica que a limpeza do quarto foi concluída
+                    quartoParaLimpar.setVago(true);  // Marca o quarto como vago após a limpeza
+                }
             }
         }
     }
+
 
     private Quarto encontrarQuartoParaLimpar() {
         for (Quarto quarto : hotel.quartos) {

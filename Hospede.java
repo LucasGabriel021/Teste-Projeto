@@ -13,38 +13,32 @@ public class Hospede extends Thread{
 
     @Override
     public void run() {
-        boolean checkedIn = false;
-        boolean isEsperandoFila = false; // Booleano que verifica se a um hospede na fila
         Random random = new Random();
-        while (!checkedIn) {
-            if (hotel.checkIn(this)) {
-                checkedIn = true;
-                System.out.println(nome + " fez check-in.");
-            } else {
-                if(!isEsperandoFila) { // Só exibir mensagem e adicionar na fila se não estiver já esperando
-                    System.out.println(nome + " está esperando por um quarto.");
-                    if (!hotel.adicionarFilaEspera(this)) {
-                        System.out.println(nome + " deixou uma reclamação e foi embora.");
-                        return;
-                    }
-                    isEsperandoFila = true; // Indica que o hospede esta na fila!
-                }
+        Recepcionista recepcionista = hotel.getRecepciistaAleatoria(); // Obtem uma recepcionista aleatoria
 
-                try {
-                    Thread.sleep(random.nextInt(5000)); // Tempo aleatório para passear
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        // Adicionar ao final da fila de espera
+        recepcionista.adicionarFilaDeEspera(this);
+
         try {
-            Thread.sleep(random.nextInt(10000)); // Tempo aleatório para permanecer no quarto
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        hotel.checkOut(this);
-        System.out.println(nome + " fez check-out.");
+            // Este loop simplesmente espera até que o check-out seja chamado pela recepcionista
+            // após o check-in ter sido bem-sucedido.
+            synchronized (this) {
+                wait();  // Aguarda notificação da recepcionista de que o check-out foi realizado
+            }
 
+            // Simular duração da estadia
+            Thread.sleep(random.nextInt(10000)); // Permanecia do hospede de forma aleatória
+
+            // Check-out após a estadia
+            recepcionista.checkOut(this);
+
+            // Após ser notificado que o check-out foi realizado
+            System.out.println(getNome() + " completou o check-out e está deixando o hotel.");
+
+        } catch (InterruptedException e) {
+            System.out.println("Hospede interrompido: " + getNome() + " não completou sua estadia devido a uma interrupção.");
+            Thread.currentThread().interrupt();
+        }
     }
 
     public int getMembrosFamilia() {
