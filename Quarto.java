@@ -7,7 +7,8 @@ public class Quarto {
     private boolean chaveNaRecepcao;
     private boolean vago; // Indica se o quarto esta vago
     private int ocupacaoAtual;
-    private static final int CAPACIDADE_MAXIMA = 4;
+    public static final int CAPACIDADE_MAXIMA = 4;
+    private boolean limpo = false; // Estado para rastrear se o quarto foi limpo
 
     public Quarto(int numero) {
         this.numero = numero;
@@ -65,5 +66,13 @@ public class Quarto {
 
     public synchronized void setVago(boolean vago) {
         this.vago = vago;
+    }
+
+    public boolean isLimpo() {
+        return limpo;
+    }
+
+    public void setLimpo(boolean limpo) {
+        this.limpo = limpo;
     }
 }

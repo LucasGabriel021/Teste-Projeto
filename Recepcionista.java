@@ -14,11 +14,16 @@ public class Recepcionista extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
                 Hospede hospede = filaDeEspera.take();
-                if (!checkIn(hospede)) { // Tenta fazer check-in, se falhar, re-adiciona à fila
-                    Thread.sleep(RETRY_DELAY_MS); // Espera antes de tentar novamente
+                if (!checkIn(hospede)) { // Utiliza o checkIn modificado
+                    if (hospede.incrementarTentativas() >= 2) {
+                        System.out.println("Hospede " + hospede.getNome() + " deixou uma reclamação e foi embora.");
+                        continue;
+                    }
+                    System.out.println("Hospede " + hospede.getNome() + " vai passear pela cidade e tentar novamente mais tarde.");
+                    Thread.sleep(RETRY_DELAY_MS); // Hospede passeia pela cidade
                     filaDeEspera.put(hospede);
                 }
             } catch (InterruptedException e) {
@@ -28,16 +33,29 @@ public class Recepcionista extends Thread {
         }
     }
 
-    private boolean checkIn(Hospede hospede) {
+
+    public boolean alocarGrupo(Hospede hospede) {
+        int membrosDaFamilia = hospede.getMembrosFamilia();
         synchronized(hotel) {
-            Quarto quarto = hotel.getVagoQuarto();
-            if(quarto != null) {
-                int membrosFamilia = hospede.getMembrosFamilia();
-                quarto.adicionarHospede(hospede, membrosFamilia);
-                System.out.println("Check-in realizado por " + hospede.getNome() + " e seus familiares " + hospede.getMembrosFamilia() + " foi alocado no quarto de número " + quarto.getNumero());
-               return true;
+            while(membrosDaFamilia > 0) {
+                Quarto quarto = hotel.getVagoQuarto();
+                if(quarto == null) {
+                    return false;
+                }
+                int membrosNoQuarto = Math.min(membrosDaFamilia, Quarto.CAPACIDADE_MAXIMA);
+                quarto.adicionarHospede(hospede, membrosNoQuarto);
+                membrosDaFamilia -= membrosNoQuarto;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkIn(Hospede hospede) {
+        synchronized (hotel) {
+            if (alocarGrupo(hospede)) {
+                System.out.println("Check-in realizado com sucesso para " + hospede.getNome() + " e seus familiares.");
+                return true;
             } else {
-                System.out.println("Quartos: " + hotel.getVagoQuarto());
                 System.out.println("Check-in falhou: Não há quartos disponíveis para " + hospede.getNome());
                 return false;
             }
@@ -51,11 +69,16 @@ public class Recepcionista extends Thread {
                     quarto.removerHospede(hospede);
                     if (quarto.getHospedes().isEmpty()) {
                         quarto.setChaveNaRecepcao(true);  // Pronto para limpeza
-                        quarto.setVago(true);  // Marcar como vago imediatamente se necessário
+                        quarto.setVago(true);  // Marcar como vago imediatamente
+                        quarto.setLimpo(false); // Marcar como não limpo
+                        System.out.println("Quarto " + quarto.getNumero() + " está agora vago e pronto para limpeza.");
+                        hotel.notifyAll();  // Notificar que o quarto está pronto para limpeza
                     }
                     synchronized (hospede) {
-                        hospede.notifyAll();  // Notifica o hóspede para finalizar sua thread
+                        hospede.concluirEstadia(); // Permitir que o hospede conclua sua estadia
+                        hospede.notifyAll();
                     }
+                    System.out.println("Hospede " + hospede.getNome() + " fez checkout.");
                     break;
                 }
             }
