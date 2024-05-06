@@ -1,8 +1,8 @@
-## Sistema de Reserva e Controle de Quartos em um Hotel
+# Sistema de Reserva e Controle de Quartos em um Hotel
 
 Este projeto em Java 17 simula um sistema de reserva e controle de quartos em um hotel, utilizando threads para representar as diferentes entidades envolvidas: quartos, hóspedes, camareiras, recepcionistas e hotel.
 
-# Entidades Representadas
+## Entidades Representadas
 
 - Quartos
 - Hóspedes
