@@ -7,6 +7,15 @@ public class Recepcionista extends Thread {
         this.hotel = hotel;
     }
 
+    public void checkIn(Hospede hospede) {
+        if (hotel.temQuartoDisponivel()) {
+            hotel.alocarQuarto(hospede);
+            System.out.println("Recepcionista fez check-in para " + hospede.getNome());
+        } else {
+            System.out.println("Não há quartos disponíveis para " + hospede.getNome());
+        }
+    }
+
     @Override
     public void run() {
         Random random = new Random();
@@ -23,9 +32,7 @@ public class Recepcionista extends Thread {
                 }
 
                 if (proximoHospede != null) {
-                    if (hotel.checkIn(proximoHospede)) {
-                        System.out.println("Recepcionista alocou um quarto para " + proximoHospede.getNome());
-                    }
+                    checkIn(proximoHospede);
                 }
             }
         }

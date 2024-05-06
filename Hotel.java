@@ -18,17 +18,17 @@ public class Hotel {
         recepcionistas = new ArrayList<>();
 
         // Inicializar os quartos
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 40; i++) {
             quartos.add(new Quarto(i + 1));
         }
 
         // Inicializar as camareiras
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 25; i++) {
             camareiras.add(new Camareira(this));
         }
 
         // Inicializar os recepcionistas
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 15; i++) {
             recepcionistas.add(new Recepcionista(this));
         }
     }
@@ -72,6 +72,31 @@ public class Hotel {
         if(hospedesAtivos.decrementAndGet() == 0) {
             System.out.println("Não há mais hospedes no hotel, portanto o sistema será encerrado");
             System.exit(0); // Método encerra a aplicação se não houver hóspedes ativos!
+        }
+    }
+    
+    public synchronized boolean temQuartoDisponivel() {
+        for (Quarto quarto : quartos) {
+            if (quarto.isVago()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Método para alocar um quarto para um hóspede
+    public synchronized void alocarQuarto(Hospede hospede) {
+        if (!temQuartoDisponivel()) {
+            System.out.println("Desculpe, não há quartos disponíveis no momento.");
+            return;
+        }
+
+        for (Quarto quarto : quartos) {
+            if (quarto.isVago()) {
+                quarto.adicionarHospede(hospede, 1); // Aloca o hóspede para o quarto vago
+                System.out.println("Quarto " + quarto.getNumero() + " foi alocado para o hóspede " + hospede.getNome());
+                break;
+            }
         }
     }
 
