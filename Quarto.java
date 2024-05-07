@@ -59,8 +59,14 @@ public class Quarto {
         return chaveNaRecepcao;
     }
 
-    public synchronized void setChaveNaRecepcao(boolean chaveNaRecepcao) {
-        this.chaveNaRecepcao = chaveNaRecepcao;
+    public synchronized void deixarChaveNaRecepcao(String nome) {
+        this.chaveNaRecepcao = true;
+        System.out.println("Chave do quarto " + numero + " deixada na recepção por " + nome);
+    }
+
+    public synchronized void pegarChaveDaRecepcao(String nome) {
+        this.chaveNaRecepcao = false;
+        System.out.println("Chave do quarto " + numero + " retirada da recepção por " + nome);
     }
 
     public int getNumero() {

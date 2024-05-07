@@ -20,17 +20,17 @@ public class Hotel {
         random = new Random();
 
         // Inicializar os quartos
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 10; i++) {
             quartos.add(new Quarto(i + 1));
         }
 
         // Inicializar as camareiras
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 10; i++) {
             camareiras.add(new Camareira(this));
         }
 
         // Inicializar os recepcionistas
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             recepcionistas.add(new Recepcionista(this));
         }
     }
@@ -51,7 +51,12 @@ public class Hotel {
 
     // Retorna um recepcionista aleatória
     public Recepcionista getRecepciistaAleatoria() {
-        int recepcionistaAtual = random.nextInt(recepcionistas.size());
-        return recepcionistas.get(recepcionistaAtual);
+        int index = random.nextInt(recepcionistas.size());
+        return recepcionistas.get(index);
     }
+
+    public synchronized void quartoLiberado() {
+        notifyAll();  // Notifica todas as threads esperando que um quarto foi liberado
+    }
+
 }

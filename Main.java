@@ -5,7 +5,7 @@ public class Main {
         Hotel hotel = new Hotel();
 
         // Iniciar threads de hóspedes
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30; i++) {
             Hospede hospede = new Hospede(hotel, "Hóspede" + (i + 1), new Random().nextInt(6) + 1);
             hospede.start();
         }
