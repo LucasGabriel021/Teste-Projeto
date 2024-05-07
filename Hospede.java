@@ -43,8 +43,8 @@ public class Hospede extends Thread{
             }
 
             // Check-out após a estadia
-            recepcionista.checkOut(this);
-
+            checkOut(this);
+            
             // Após ser notificado que o check-out foi realizado
             System.out.println(getNome() + " e seu grupo de " + getMembrosFamilia()  + " pessoas, completou o check-out e está deixando o hotel.");
 
@@ -61,6 +61,33 @@ public class Hospede extends Thread{
         }
     }
 
+    public void checkOut(Hospede hospede) {
+        synchronized (hotel) {
+            for (Quarto quarto : hotel.getQuartos()) {
+                if (quarto.getHospedes().contains(hospede)) {
+                    quarto.removerHospede(hospede);
+                    if (quarto.getHospedes().isEmpty()) {
+                        quarto.setChaveNaRecepcao(true);  // Pronto para limpeza
+                        quarto.setVago(true);  // Marcar como vago imediatamente
+                        quarto.setLimpo(false); // Marcar como não limpo
+                        System.out.println("Quarto " + quarto.getNumero() + " está agora vago e pronto para limpeza.");
+                        hotel.notifyAll();  // Notificar que o quarto está pronto para limpeza
+                    }
+                    synchronized (this) {
+                        this.concluirEstadia(); // Permitir que o hospede conclua sua estadia
+                        this.notifyAll();
+                    }
+                    System.out.println(hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia() + " pessoas fizeram o check-out no hotel.");
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void checkOut() {
+    	
+    }
+    
     public int incrementarTentativas() {
         return tentativas++;
     }

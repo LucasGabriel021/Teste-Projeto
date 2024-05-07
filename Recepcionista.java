@@ -81,28 +81,6 @@ public class Recepcionista extends Thread {
 
     }
 
-    public void checkOut(Hospede hospede) {
-        synchronized (hotel) {
-            for (Quarto quarto : hotel.getQuartos()) {
-                if (quarto.getHospedes().contains(hospede)) {
-                    quarto.removerHospede(hospede);
-                    if (quarto.getHospedes().isEmpty()) {
-                        quarto.setChaveNaRecepcao(true);  // Pronto para limpeza
-                        quarto.setVago(true);  // Marcar como vago imediatamente
-                        quarto.setLimpo(false); // Marcar como não limpo
-                        System.out.println("Quarto " + quarto.getNumero() + " está agora vago e pronto para limpeza.");
-                        hotel.notifyAll();  // Notificar que o quarto está pronto para limpeza
-                    }
-                    synchronized (hospede) {
-                        hospede.concluirEstadia(); // Permitir que o hospede conclua sua estadia
-                        hospede.notifyAll();
-                    }
-                    System.out.println(hospede.getNome() + " e seu grupo de " + hospede.getMembrosFamilia() + " pessoas fizeram o check-out no hotel.");
-                    break;
-                }
-            }
-        }
-    }
 
 
     public void adicionarFilaDeEspera(Hospede hospede) {

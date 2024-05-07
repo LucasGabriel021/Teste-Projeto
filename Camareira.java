@@ -54,7 +54,7 @@ public class Camareira extends Thread {
 
             quarto.setLimpo(true);
             quarto.setVago(true); // Marcar o quarto como vago somente depois da limpeza
-            quarto.setChaveNaRecepcao(false); // Chave não está na recepção porque o quarto está pronto
+            quarto.setChaveNaRecepcao(true); // Chave não está na recepção porque o quarto está pronto
             System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
         }
         synchronized (hotel) {
